@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>D3 Test</title>
+        <script type="text/javascript" src="d3/d3.v3.js"></script>
+    </head>
+	
+	<style>
+	
+
+			p {
+			  color: white;
+			  margin: 50px;
+			}
+
+			a {
+			  color: #4FDEF2;
+			}
+
+			.axis {
+			  fill: gray;
+			  -webkit-user-select: none;
+			  -moz-user-select: none;
+			  user-select: none;
+			}
+
+			.axis .halo {
+			  stroke: gray;
+			  stroke-width: 4px;
+			  stroke-linecap: round;
+			}
+
+			.slider .handle path {
+			  stroke: red;
+			  stroke-width: 3px;
+			  stroke-linecap: round;
+			  pointer-events: none;
+			}
+
+			.slider .handle text {
+			  fill: red;
+			  text-align: center;
+			  font-size: 18px;
+			}
+
+				.node circle{
+				fill: #fff;
+				stroke: red;
+				stroke-width: 3px; 
+			}
+			
+			.node text {font: 12px sans-serif; }
+			
+			.link {
+				fill: none; 
+				stroke: #ccc
+				stroke-width: 2px
+			}
+		
+			body {
+			  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			  margin: 0;
+			}
+			
+			.labels {
+			  font: 10px sans-serif;
+			}
+
+			.link--active {
+			  stroke: #000 !important;
+			  stroke-width: 1.5px;
+	</style> 
+	
+    <body>
+		 <script type="text/javascript">
+			var year = 1974;
+
+			//generate tree diagrams 
+			var margin = {top: 20, right: 120, bottom: 20, left: 120},
+			 width = 960 - margin.right - margin.left,
+			 height = 500 - margin.top - margin.bottom;
+			 
+			var i = 0;
+
+			var tree = d3.layout.tree()
+			 .size([height, width]);
+
+			var diagonal = d3.svg.diagonal()
+			 .projection(function(d) { return [d.y, d.x]; });
+
+			var svg = d3.select("body").append("svg")
+			 .attr("width", width + margin.right + margin.left)
+			 .attr("height", height + margin.top + margin.bottom)
+			  .append("g")
+			 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			 
+
+			d3.csv("UK Food trends.csv", function(data){ //load the data 
+			
+			data.forEach(function(d){ //convert every fucking column into integers 
+					d[1974] = +d[1974];
+					d[1975] = +d[1975];
+					d[1976] = +d[1976];
+					d[1977] = +d[1977];
+					d[1978] = +d[1978];
+					d[1979] = +d[1979];
+					d[1980] = +d[1981];
+					d[1981] = +d[1981];
+					d[1982] = +d[1982];
+					d[1983] = +d[1983];
+					d[1984] = +d[1984];
+					d[1985] = +d[1985];
+					d[1986] = +d[1986];
+					d[1987] = +d[1987];
+					d[1988] = +d[1988];
+					d[1989] = +d[1989];
+					d[1990] = +d[1990];
+					d[1991] = +d[1991];
+					d[1992] = +d[1992];
+					d[1993] = +d[1993];
+					d[1994] = +d[1994];
+					d[1995] = +d[1995];
+					d[1996] = +d[1996];
+					d[1997] = +d[1997];
+					d[1998] = +d[1998];
+					d[1999] = +d[1999];
+					d[2000] = +d[2000];
+					d[2001] = +d[2001];
+					d[2002] = +d[2002];
+					d[2003] = +d[2003];
+					d[2004] = +d[2004];
+					d[2005] = +d[2005];
+					d[2006] = +d[2006];
+					d[2007] = +d[2007];
+					d[2008] = +d[2008];
+					d[2009] = +d[2009];
+					d[2010] = +d[2010];
+					d[2011] = +d[2011];
+					d[2012] = +d[2012];
+					d[2013] = +d[2013];
+					d[2014] = +d[2014];				
+				});
+				console.log(data[0]);
+				console.log(data);
+				
+				var dataMap = data.reduce(function(map, node){
+					map[node.desc1] = node; 
+					map[node.desc2] = node;
+					map[node.desc3] = node;
+					map[node.desc4] = node;
+					return map; 
+				},{});
+				
+				console.log(dataMap);
+					
+					
+				var treeData = []; //and iteratively add each child to it's parent 
+					data.forEach(function(node) {
+					 // add to parent
+					 var parent = dataMap[node.parent]; //the parent nodes start with the desc1 column 
+					 
+					 if (parent) {
+					  // create child array if it doesn't exist
+					  (parent.children || (parent.children = []))
+					   // add node to child array
+					   .push(node);
+					   
+				
+			
+					 } else {
+					  // parent is null or missing
+					  treeData.push(node);
+					 }
+					});
+			
+
+					console.log(treeData[0]); 
+				root = treeData[0]; 
+				update(root);
+				console.log(root);
+			});
+
+
+
+			
+			function update(source) {  //draw tree 
+
+		
+			  // Compute the new tree layout.
+			  var nodes = tree.nodes(root).reverse(),
+			   links = tree.links(nodes);
+
+			  // Normalize for fixed-depth.
+			  nodes.forEach(function(d) { d.y = d.depth * 180; });
+
+			  // Declare the nodesâ€¦
+			  var node = svg.selectAll("g.node")
+			   .data(nodes, function(d) { return d.id || (d.id = ++i); });
+			    
+
+			  // Enter the nodes.
+			  var nodeEnter = node.enter().append("g")
+			   .attr("class", "node")
+			   .attr("transform", function(d) { 
+				return "translate(" + d.y + "," + d.x + ")"; });
+
+			  nodeEnter.append("circle")
+			   .attr("r", 10)
+			   .style("fill", "#fff");
+
+			  nodeEnter.append("text")
+			   .attr("x", function(d) { 
+				return d.children || d._children ? -13 : 13; })
+			   .attr("dy", ".35em")
+			   .attr("text-anchor", function(d) { 
+				return d.children || d._children ? "end" : "start"; })
+			   .text(function(d) { return d.name; })
+			   .style("fill-opacity", 1);
+
+			   
+			  // Declare the linksâ€¦
+			  var link = svg.selectAll("path.link")
+			   .data(links, function(d) { return d.target.id; });
+				
+				
+			  // Enter the links.
+			  link.enter().insert("path", "g")
+			   .attr("class", "link")
+			   .attr("d", diagonal);
+
+			}
+			
+			
+			
+			
+			//year slider 
+			formatDate = d3.time.format("%Y");
+
+			// parameters
+			var sliderMargin = {
+				top: 50,
+				right: 50,
+				bottom: 50,
+				left: 50
+			  },
+			  width = 960 - sliderMargin.left - sliderMargin.right,
+			  height = 300 - sliderMargin.bottom - sliderMargin.top;
+
+
+			// scale function
+			var timeScale = d3.time.scale()
+			  .domain([new Date('1975'), new Date('2015')])
+			  .range([0, width])
+			  .clamp(true);
+
+
+			// initial value
+			var startValue = timeScale(new Date('1975'));
+			startingValue = new Date('1975');
+
+			//////////
+
+			// defines brush
+			var brush = d3.svg.brush()
+			  .x(timeScale)
+			  .extent([startingValue, startingValue])
+			  .on("brush", brushed);
+
+			var svg = d3.select("body").append("svg")
+			  .attr("width", width + margin.left + margin.right)
+			  .attr("height", height + margin.top + margin.bottom)
+			  .append("g")
+			  // classic transform to position g
+			  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+			svg.append("g")
+			  .attr("class", "x axis")
+			// put in middle of screen
+			.attr("transform", "translate(0," + height / 2 + ")")
+			// inroduce axis
+			.call(d3.svg.axis()
+			  .scale(timeScale)
+			  .orient("bottom")
+			  .tickFormat(function(d) {
+				return formatDate(d);
+			  })
+			  .tickSize(0)
+			  .tickPadding(12)
+			  .tickValues([timeScale.domain()[0], timeScale.domain()[1]]))
+			  .select(".domain")
+			  .select(function() {
+				console.log(this);
+				return this.parentNode.appendChild(this.cloneNode(true));
+			  })
+			  .attr("class", "halo");
+
+			var slider = svg.append("g")
+			  .attr("class", "slider")
+			  .call(brush);
+
+			slider.selectAll(".extent,.resize")
+			  .remove();
+
+			slider.select(".background")
+			  .attr("height", height);
+
+			var handle = slider.append("g")
+			  .attr("class", "handle")
+
+			handle.append("path")
+			  .attr("transform", "translate(0," + height / 2 + ")")
+			  .attr("d", "M 0 -20 V 20")
+
+			handle.append('text')
+			  .text(startingValue)
+			  .attr("transform", "translate(" + (-18) + " ," + (height / 2 - 25) + ")");
+
+			slider
+			  .call(brush.event)
+
+			function brushed() {
+			  var value = brush.extent()[0];
+
+			  if (d3.event.sourceEvent) { // not a programmatic event
+				value = timeScale.invert(d3.mouse(this)[0]);
+				brush.extent([value, value]);
+			  }
+
+			  year = formatDate(value);
+
+			  handle.attr("transform", "translate(" + timeScale(value) + ",0)");
+			  handle.select('text').text(formatDate(value));
+			  
+			}
+			
+			
+        </script>
+    </body>
+</html>
+
